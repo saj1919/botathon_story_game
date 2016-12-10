@@ -1,11 +1,12 @@
 from nltk.tokenize import sent_tokenize
+from nltk.corpus import stopwords
 import re
-import operator
-from rhymes import word_similarity
 import random
 
+stopwords = stopwords.words('english')
 
-class rhyme:
+
+class rrhyme:
 
     def __init__(self, input_file):
         self.text_lastword_dict = self.tokenize_book(input_file)
@@ -32,11 +33,17 @@ class rhyme:
             x = re.sub("\s+", ' ', x)
             x = x.strip()
             if x != "" and 5 <= len(x.split()) <= 10:
-                lastword = x.split()[-1].strip()
-                if lastword not in text_lastword_dict:
-                    text_lastword_dict[lastword] = [x]
-                else:
-                    text_lastword_dict[lastword].append(x)
+                x_words = x.split()
+                x_words_new = []
+                for w in x_words:
+                    w = w.strip()
+                    if w not in stopwords:
+                        x_words_new.append(w)
+                for w in x_words_new:
+                    if w not in text_lastword_dict:
+                        text_lastword_dict[w] = [x]
+                    else:
+                        text_lastword_dict[w].append(x)
         return text_lastword_dict
 
     def get_rhym_text(self, input_text):
@@ -45,34 +52,20 @@ class rhyme:
         input_text = re.sub("[^A-Za-z0-9]", " ", input_text)
         input_text = re.sub("\s+", ' ', input_text)
 
-        last_word = input_text.split()[-1].strip()
-        rhym_score = {}
-        wcount = 0
-
-        for w, s in self.text_lastword_dict.items():
-            if w != last_word and len(w) > 3:
-                rhym_score[w] = word_similarity(w, last_word)
-            wcount += 1
-
-        rhym_score = sorted(rhym_score.items(), key=operator.itemgetter(1), reverse=True)
-        highest_score_words = []
-        max_score = rhym_score[0][1]
-	min_score = 0.6
-        if max_score >= 0.4:
-            for w, s in rhym_score:
-                if s > min_score:
-                    highest_score_words.append(w)
-	    if len(highest_score_words) == 0:
-		random.shuffle(rhym_score)
-	        bot_text = self.text_lastword_dict[rhym_score[0][0]]
-	    else:
-                random.shuffle(highest_score_words)
-                bot_text = self.text_lastword_dict[highest_score_words[0]]
+        input_text_arr = []
+        for w in input_text.split():
+            w = w.strip()
+            if w not in stopwords:
+                input_text_arr.append(w)
+        if len(input_text_arr) > 0:
+            random.shuffle(input_text_arr)
+            last_word = input_text_arr[0]
         else:
-            random.shuffle(rhym_score)
-            bot_text = self.text_lastword_dict[rhym_score[0][0]]
-        random.shuffle(bot_text)
-        return bot_text[0]
+            last_word = input_text.split()[-1].strip()
+
+        bot_text_arr = self.text_lastword_dict[last_word]
+        random.shuffle(bot_text_arr)
+        return bot_text_arr[0]
 
 
 if __name__ == '__main__':
@@ -82,3 +75,4 @@ if __name__ == '__main__':
     while True:
         input_text = raw_input("YOU : ")
         print "BOT : ", obj.get_rhym_text(input_text)
+
