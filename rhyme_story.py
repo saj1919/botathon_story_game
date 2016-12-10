@@ -57,9 +57,10 @@ class rhyme:
         rhym_score = sorted(rhym_score.items(), key=operator.itemgetter(1), reverse=True)
         highest_score_words = []
         max_score = rhym_score[0][1]
+        min_score = 0.6
         if max_score > 0:
             for w, s in rhym_score:
-                if s >= max_score:
+                if s > min_score:
                     highest_score_words.append(w)
             random.shuffle(highest_score_words)
             bot_text = self.text_lastword_dict[highest_score_words[0]]
