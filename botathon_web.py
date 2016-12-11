@@ -6,11 +6,12 @@ import cherrypy
 from yoda_util import YodaConvertor
 from rhyme_story import rhyme
 from romantic_poems import rrhyme
-
+from matching import StoryBot
 
 class StringGenerator(object):
 
     def __init__(self, poem_input_file, rpoem_input_file):
+	self.story_obj = StoryBot()
 	self.yc_obj = YodaConvertor()
 	self.poem_obj = rhyme(poem_input_file)
 	self.rpoem_obj = rhyme(rpoem_input_file)
@@ -30,6 +31,10 @@ class StringGenerator(object):
 	    self.prev_romatic_bot_reply = ""
             self.global_prev_context = self.global_context
             self.global_context = "yoda"
+	elif my_msg == "story":
+            self.prev_romatic_bot_reply = ""
+            self.global_prev_context = self.global_context
+            self.global_context = "story"
         elif my_msg == "poem":
 	    self.prev_romatic_bot_reply = ""
             self.global_prev_context = self.global_context
@@ -52,6 +57,11 @@ class StringGenerator(object):
                 return "Type Something and generate Poems !!"
      	    else:
 		return self.poem_test(my_msg)
+	elif self.global_context == "story":
+            if self.global_context != self.global_prev_context:
+                return "Type your story lines and get context-aware story !!"
+            else:
+                return self.story_test(my_msg)
 	elif self.global_context == "romantic":
             if self.global_context != self.global_prev_context:
                 return "Type Something and generate romatic poems game !! Rule is to include proper word (no stopword) from previous msg."
@@ -97,6 +107,11 @@ class StringGenerator(object):
     def yoda_test(self, my_text="SOMETHING"):
         self.my_text = self.yc_obj.convert_text(my_text)
 	return self.my_text
+
+    @cherrypy.expose
+    def story_test(self, my_text="SOMETHING"):
+        self.my_text = self.story_obj.get_reco(my_text)
+        return self.my_text
 
 
 if __name__ == '__main__':
