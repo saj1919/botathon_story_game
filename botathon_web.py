@@ -23,12 +23,15 @@ class StringGenerator(object):
     def main_api(self, my_text="SOMETHING", method="get", _="none"):
 	my_msg = my_text.split('?_=')[0]
 	if my_msg == "help" or my_msg == "quit" or my_msg == "exit" or my_msg == "end":
+	    self.prev_romatic_bot_reply = ""
             self.global_prev_context = self.global_context
             self.global_context = "help"
         elif my_msg == "yoda":
+	    self.prev_romatic_bot_reply = ""
             self.global_prev_context = self.global_context
             self.global_context = "yoda"
         elif my_msg == "poem":
+	    self.prev_romatic_bot_reply = ""
             self.global_prev_context = self.global_context
             self.global_context = "poem"
 	elif my_msg == "romantic":
@@ -78,14 +81,9 @@ class StringGenerator(object):
 	            self.global_prev_context = "help"
 		    return "You have not included any proper word from previous msg. YOU LOST !! Type 'exit', 'help' for main menu."
 	except Exception as e:
-	    traceback.print_exc()
-	    try:
-	        self.prev_romatic_bot_reply = self.rpoem_obj.get_rhym_text(my_text)
-		return self.prev_romatic_bot_reply
-	    except:
-		traceback.print_exc()
-	    	self.prev_romatic_bot_reply = self.yoda_test(my_text)
-		return self.prev_romatic_bot_reply
+            traceback.print_exc()
+	    self.prev_romatic_bot_reply = self.yoda_test(my_text)
+	    return self.prev_romatic_bot_reply
 
     @cherrypy.expose
     def poem_test(self, my_text="SOMETHING"):
